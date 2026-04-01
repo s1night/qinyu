@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PRISMA_DATABASE_URL")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  openid      String   @unique
+  nickname    String
+  avatar      String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sessions    Session[]
+  userInterests UserInterest[]
+  groupMembers GroupMember[]
+  createdGroups Group[]   @relation("GroupCreator")
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id
+  userId    Int      @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Interest {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  createdAt   DateTime @default(now())
+
+  userInterests UserInterest[]
+  groupInterests GroupInterest[]
+
+  @@map("interests")
+}
+
+model Group {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  avatar      String?
+  creatorId   Int      @map("creator_id")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  creator     User     @relation("GroupCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  members     GroupMember[]
+  interests   GroupInterest[]
+
+  @@map("groups")
+}
+
+model UserInterest {
+  userId     Int      @map("user_id")
+  interestId Int      @map("interest_id")
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interest   Interest @relation(fields: [interestId], references: [id], onDelete: Cascade)
+
+  @@id([userId, interestId])
+  @@map("user_interests")
+}
+
+model GroupMember {
+  groupId    Int      @map("group_id")
+  userId     Int      @map("user_id")
+  role       String   @default("member")
+  joinedAt   DateTime @default(now()) @map("joined_at")
+
+  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([groupId, userId])
+  @@map("group_members")
+}
+
+model GroupInterest {
+  groupId    Int      @map("group_id")
+  interestId Int      @map("interest_id")
+  createdAt  DateTime @default(now())
+
+  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  interest   Interest @relation(fields: [interestId], references: [id], onDelete: Cascade)
+
+  @@id([groupId, interestId])
+  @@map("group_interests")
+}
