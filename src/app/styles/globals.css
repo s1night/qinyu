@@ -5,10 +5,17 @@
 :root {
   --background: #F8FAFC;
   --foreground: #1E293B;
+  --primary: #4CAF50;
+  --primary-light: #E8F5E9;
+  --secondary: #388E3C;
+  --text-muted: #64748B;
+  --border: #E2E8F0;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: var(--background);
   color: var(--foreground);
   line-height: 1.6;
@@ -28,11 +35,11 @@ body {
   }
   
   .card {
-    @apply bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-lg;
+    @apply bg-white rounded-xl shadow-md p-6 transition-all duration-300 hover:shadow-lg;
   }
   
   .btn {
-    @apply px-4 py-2 rounded-md font-medium transition-all duration-300;
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-300;
   }
   
   .btn-primary {
@@ -41,5 +48,41 @@ body {
   
   .btn-outline {
     @apply border border-primary text-primary hover:bg-primary hover:text-white;
+  }
+  
+  .btn-secondary {
+    @apply bg-white border border-gray-300 text-gray-700 hover:bg-gray-50;
+  }
+  
+  .input-search {
+    @apply w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all;
+  }
+  
+  .tag {
+    @apply px-3 py-1 rounded-full text-sm font-medium;
+  }
+  
+  .tag-primary {
+    @apply bg-primary/10 text-primary;
+  }
+  
+  .tag-secondary {
+    @apply bg-gray-100 text-gray-600;
+  }
+  
+  .nav-link {
+    @apply flex items-center gap-2 px-4 py-2 rounded-lg transition-all hover:bg-primary/10 text-gray-700 hover:text-primary;
+  }
+  
+  .nav-link-active {
+    @apply bg-primary/10 text-primary font-medium;
+  }
+  
+  .avatar {
+    @apply w-10 h-10 rounded-full object-cover;
+  }
+  
+  .avatar-lg {
+    @apply w-16 h-16 rounded-full object-cover;
   }
 }
