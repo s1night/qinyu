@@ -37,7 +37,51 @@ export default function GroupDetailPage({
           }
         } else {
           const groupData = await groupResponse.json();
-          setGroup(groupData);
+          
+          // 添加话题测试数据
+          const groupWithTopics = {
+            ...groupData,
+            topics: [
+              {
+                id: 1,
+                title: '分享一本最近在读的好书',
+                content: '最近在读《原子习惯》，感觉很有启发，推荐给大家！',
+                user: {
+                  nickname: '书虫',
+                  avatar: null
+                },
+                createdAt: '2024-01-15T10:30:00',
+                likes: 24,
+                comments: 8
+              },
+              {
+                id: 2,
+                title: '周末读书会地点推荐',
+                content: '我发现了一个环境很好的咖啡馆，适合安静看书，地址在XX路XX号',
+                user: {
+                  nickname: '读者',
+                  avatar: null
+                },
+                createdAt: '2024-01-14T14:20:00',
+                likes: 18,
+                comments: 5
+              },
+              {
+                id: 3,
+                title: '大家平时喜欢读什么类型的书？',
+                content: '我比较喜欢文学和心理学类的书籍，你们呢？',
+                user: {
+                  nickname: '文学爱好者',
+                  avatar: null
+                },
+                createdAt: '2024-01-13T09:15:00',
+                likes: 32,
+                comments: 12
+              }
+            ]
+          };
+          
+          setGroup(groupWithTopics);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : '加载失败');
@@ -259,7 +303,7 @@ export default function GroupDetailPage({
           </div>
         )}
 
-        <div className="card p-6">
+        <div className="card p-6 mb-6">
           <h2 className="text-lg font-semibold mb-4">小组成员 ({group.member_count})</h2>
           <div className="space-y-4">
             {group.members.map((member: any) => (
@@ -281,6 +325,60 @@ export default function GroupDetailPage({
                   <span className="text-sm text-muted">
                     加入时间：{new Date(member.joined_at).toLocaleDateString('zh-CN')}
                   </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 话题列表 */}
+        <div className="card p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold">圈子话题</h2>
+            {user && (
+              <button className="btn btn-primary text-sm">
+                发布话题
+              </button>
+            )}
+          </div>
+          
+          <div className="space-y-6">
+            {group.topics && group.topics.map((topic: any) => (
+              <div key={topic.id} className="border-b border-border pb-6 last:border-0 last:pb-0">
+                <div className="flex items-start gap-4">
+                  {topic.user.avatar ? (
+                    <img src={topic.user.avatar} alt={topic.user.nickname} className="avatar" />
+                  ) : (
+                    <div className="avatar bg-primary/10 flex items-center justify-center">
+                      <span className="text-primary font-medium">{topic.user.nickname.charAt(0)}</span>
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="font-medium">{topic.user.nickname}</span>
+                      <span className="text-xs text-muted">
+                        {new Date(topic.createdAt).toLocaleDateString('zh-CN')}
+                      </span>
+                    </div>
+                    
+                    <h3 className="text-lg font-semibold mb-2">{topic.title}</h3>
+                    <p className="text-muted mb-4 line-clamp-3">{topic.content}</p>
+                    
+                    <div className="flex items-center gap-4 text-sm text-muted">
+                      <button className="flex items-center gap-1 hover:text-primary transition-colors">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        <span>{topic.likes}</span>
+                      </button>
+                      <button className="flex items-center gap-1 hover:text-primary transition-colors">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        <span>{topic.comments} 评论</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}

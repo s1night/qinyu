@@ -60,6 +60,45 @@ export default function Home() {
             tags: ['探店 (Cafes)', '安静 (Quiet)'],
             time: '今晚 19:00',
             participants: '1/2人'
+          },
+          {
+            id: 4,
+            title: '一起去公园喂鸽子',
+            description: '天气很好，想找个人一起去公园喂鸽子，晒晒太阳，不需要太多交流，安静就好。',
+            user: {
+              nickname: '匿名鸽子',
+              avatar: null,
+              distance: '2.1 km'
+            },
+            tags: ['户外 (Outdoor)', '放松 (Relax)'],
+            time: '周日 10:00',
+            participants: '1/2人'
+          },
+          {
+            id: 5,
+            title: '深夜食堂拼桌',
+            description: '晚上有点饿，想找个人一起去深夜食堂拼桌吃饭，可以聊天也可以各自玩手机。',
+            user: {
+              nickname: '匿名吃货',
+              avatar: null,
+              distance: '1.5 km'
+            },
+            tags: ['美食 (Food)', '深夜 (Night)'],
+            time: '今晚 22:00',
+            participants: '1/1人'
+          },
+          {
+            id: 6,
+            title: '一起去看日落',
+            description: '听说山顶的日落很美，想找个人一起去看，不需要说话，静静欣赏就好。',
+            user: {
+              nickname: '匿名追光者',
+              avatar: null,
+              distance: '4.2 km'
+            },
+            tags: ['户外 (Outdoor)', '摄影 (Photography)'],
+            time: '明天 18:00',
+            participants: '1/2人'
           }
         ];
         setTasks(mockTasks);

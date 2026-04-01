@@ -71,6 +71,39 @@ export default function GroupsPage() {
             creator: {
               nickname: '摄影师'
             }
+          },
+          {
+            id: 5,
+            name: '手作烘焙小聚',
+            description: '一起做蛋糕、饼干，分享烘焙心得，享受动手的乐趣和美食的香气。',
+            avatar: null,
+            tags: ['烘焙 (Baking)', '手工 (Handmade)'],
+            memberCount: 76,
+            creator: {
+              nickname: '烘焙师'
+            }
+          },
+          {
+            id: 6,
+            name: '城市探索者',
+            description: '探索城市的小众角落，发现隐藏的咖啡馆、书店和艺术空间。',
+            avatar: null,
+            tags: ['探索 (Exploration)', '城市 (City)'],
+            memberCount: 156,
+            creator: {
+              nickname: '探索者'
+            }
+          },
+          {
+            id: 7,
+            name: '冥想放松小组',
+            description: '一起练习冥想，放松身心，缓解压力，寻找内心的平静。',
+            avatar: null,
+            tags: ['冥想 (Meditation)', '健康 (Health)'],
+            memberCount: 98,
+            creator: {
+              nickname: '冥想师'
+            }
           }
         ];
         
