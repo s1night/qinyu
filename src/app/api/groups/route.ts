@@ -5,11 +5,8 @@ import { eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
+  // 移除认证检查，允许未登录用户访问
   const user = await getCurrentUser();
-  
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
 
   try {
     const allGroups = await db.query.groups.findMany({});

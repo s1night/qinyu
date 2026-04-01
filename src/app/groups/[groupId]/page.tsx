@@ -20,14 +20,14 @@ export default function GroupDetailPage({
   useEffect(() => {
     async function fetchData() {
       try {
+        // 获取用户信息（如果已登录）
         const authResponse = await fetch('/api/profile');
-        if (!authResponse.ok) {
-          router.push('/login');
-          return;
+        if (authResponse.ok) {
+          const userData = await authResponse.json();
+          setUser(userData);
         }
-        const userData = await authResponse.json();
-        setUser(userData);
 
+        // 获取小组信息（无需登录）
         const groupResponse = await fetch(`/api/groups/${params.groupId}`);
         if (!groupResponse.ok) {
           if (groupResponse.status === 404) {
@@ -162,22 +162,31 @@ export default function GroupDetailPage({
           >
             返回列表
           </Link>
-          {!group.is_member ? (
-            <button
-              onClick={handleJoin}
-              disabled={actionLoading}
+          {user ? (
+            !group.is_member ? (
+              <button
+                onClick={handleJoin}
+                disabled={actionLoading}
+                className="btn btn-primary"
+              >
+                {actionLoading ? '加入中...' : '加入小组'}
+              </button>
+            ) : (
+              <button
+                onClick={handleLeave}
+                disabled={actionLoading}
+                className="btn btn-outline"
+              >
+                {actionLoading ? '退出中...' : '退出小组'}
+              </button>
+            )
+          ) : (
+            <Link 
+              href="/login" 
               className="btn btn-primary"
             >
-              {actionLoading ? '加入中...' : '加入小组'}
-            </button>
-          ) : (
-            <button
-              onClick={handleLeave}
-              disabled={actionLoading}
-              className="btn btn-outline"
-            >
-              {actionLoading ? '退出中...' : '退出小组'}
-            </button>
+              登录后加入小组
+            </Link>
           )}
         </div>
 

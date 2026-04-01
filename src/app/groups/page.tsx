@@ -14,14 +14,14 @@ export default function GroupsPage() {
   useEffect(() => {
     async function fetchData() {
       try {
+        // 获取用户信息（如果已登录）
         const authResponse = await fetch('/api/profile');
-        if (!authResponse.ok) {
-          router.push('/login');
-          return;
+        if (authResponse.ok) {
+          const userData = await authResponse.json();
+          setUser(userData);
         }
-        const userData = await authResponse.json();
-        setUser(userData);
 
+        // 获取小组列表（无需登录）
         const groupsResponse = await fetch('/api/groups');
         if (!groupsResponse.ok) {
           throw new Error('获取小组列表失败');
@@ -72,12 +72,14 @@ export default function GroupsPage() {
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-foreground">兴趣小组</h1>
-          <Link 
-            href="/create-group" 
-            className="btn btn-primary"
-          >
-            创建小组
-          </Link>
+          {user && (
+            <Link 
+              href="/create-group" 
+              className="btn btn-primary"
+            >
+              创建小组
+            </Link>
+          )}
         </div>
 
         {groups.length === 0 ? (
@@ -85,12 +87,21 @@ export default function GroupsPage() {
             <div className="text-muted text-4xl mb-4">📢</div>
             <h2 className="text-xl font-semibold mb-2">暂无兴趣小组</h2>
             <p className="text-muted mb-4">成为第一个创建小组的人吧！</p>
-            <Link 
-              href="/create-group" 
-              className="btn btn-primary"
-            >
-              创建第一个小组
-            </Link>
+            {user ? (
+              <Link 
+                href="/create-group" 
+                className="btn btn-primary"
+              >
+                创建第一个小组
+              </Link>
+            ) : (
+              <Link 
+                href="/login" 
+                className="btn btn-primary"
+              >
+                登录后创建小组
+              </Link>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

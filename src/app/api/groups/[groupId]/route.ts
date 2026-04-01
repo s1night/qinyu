@@ -6,11 +6,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ groupId: string }> }) {
   const { groupId } = await params;
+  // 移除认证检查，允许未登录用户访问
   const user = await getCurrentUser();
-  
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
 
   const parsedGroupId = parseInt(groupId);
 
@@ -45,8 +42,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       },
     });
 
-    const isJoined = groupMembersList.some(m => m.userId === user.id);
-    const isAdmin = groupMembersList.some(m => m.userId === user.id && m.role === 'admin');
+    const isJoined = user ? groupMembersList.some(m => m.userId === user.id) : false;
+    const isAdmin = user ? groupMembersList.some(m => m.userId === user.id && m.role === 'admin') : false;
 
     const formattedGroup = {
       id: group.id,
