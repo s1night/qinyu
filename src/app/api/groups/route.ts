@@ -1,12 +1,14 @@
-import { getCurrentUser } from '@/app/lib/session';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/app/lib/auth/options';
 import { db } from '@/db/db';
 import { groups, users, interests, groupInterests, groupMembers } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
-  // 移除认证检查，允许未登录用户访问
-  const user = await getCurrentUser();
+  // 获取用户信息（如果已登录）
+  const session = await getServerSession(authOptions);
+  const user = session?.user;
 
   try {
     const allGroups = await db.query.groups.findMany({});
@@ -45,9 +47,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const user = await getCurrentUser();
+  const session = await getServerSession(authOptions);
   
-  if (!user) {
+  if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -58,12 +60,12 @@ export async function POST(request: NextRequest) {
       name,
       description,
       avatar,
-      creatorId: user.id,
+      creatorId: parseInt(session.user.id),
     }).returning();
 
     await db.insert(groupMembers).values({
       groupId: group.id,
-      userId: user.id,
+      userId: parseInt(session.user.id),
       role: 'admin',
     });
 

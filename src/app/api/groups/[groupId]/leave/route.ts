@@ -1,4 +1,5 @@
-import { getCurrentUser } from '@/app/lib/session';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/app/lib/auth/options';
 import { db } from '@/db/db';
 import { groups, groupMembers } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
@@ -6,9 +7,9 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request, { params }: { params: Promise<{ groupId: string }> }) {
   const { groupId } = await params;
-  const user = await getCurrentUser();
+  const session = await getServerSession(authOptions);
   
-  if (!user) {
+  if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -23,14 +24,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ gro
       return NextResponse.json({ error: 'Group not found' }, { status: 404 });
     }
 
-    if (group.creatorId === user.id) {
+    if (group.creatorId === parseInt(session.user.id)) {
       return NextResponse.json({ error: 'Creator cannot leave the group' }, { status: 400 });
     }
 
     const existingMember = await db.query.groupMembers.findFirst({
       where: and(
         eq(groupMembers.groupId, parsedGroupId),
-        eq(groupMembers.userId, user.id)
+        eq(groupMembers.userId, parseInt(session.user.id))
       ),
     });
 
@@ -40,7 +41,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ gro
 
     await db.delete(groupMembers).where(and(
       eq(groupMembers.groupId, parsedGroupId),
-      eq(groupMembers.userId, user.id)
+      eq(groupMembers.userId, parseInt(session.user.id))
     ));
 
     return NextResponse.json({ message: 'Successfully left the group' });

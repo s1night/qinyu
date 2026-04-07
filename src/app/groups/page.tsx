@@ -2,9 +2,11 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 
 export default function GroupsPage() {
-  const [user, setUser] = useState<any>(null);
+  const sessionData = useSession();
+  const session = sessionData?.data;
   const [groups, setGroups] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -12,13 +14,6 @@ export default function GroupsPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        // 获取用户信息（如果已登录）
-        const authResponse = await fetch('/api/profile');
-        if (authResponse.ok) {
-          const userData = await authResponse.json();
-          setUser(userData);
-        }
-
         // 获取小组列表（无需登录）
         const groupsResponse = await fetch('/api/groups');
         if (!groupsResponse.ok) {
@@ -137,7 +132,7 @@ export default function GroupsPage() {
             <h1 className="text-3xl font-bold text-foreground mb-2">兴趣圈子</h1>
             <p className="text-muted">找到同频的人，不尬聊，自然相处。(Find your vibe, no awkward chats)</p>
           </div>
-          {user && (
+          {session && session.user && (
             <Link href="/create-group" className="btn btn-primary">
               + 创建圈子 (Create Group)
             </Link>

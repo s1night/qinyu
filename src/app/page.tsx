@@ -2,9 +2,11 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 
 export default function Home() {
-  const [user, setUser] = useState<any>(null);
+  const sessionData = useSession();
+  const session = sessionData?.data;
   const [tasks, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -13,13 +15,6 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       try {
-        // 获取用户信息
-        const authResponse = await fetch('/api/profile');
-        if (authResponse.ok) {
-          const userData = await authResponse.json();
-          setUser(userData);
-        }
-
         // 获取任务列表（模拟数据）
         const mockTasks = [
           {
@@ -140,7 +135,7 @@ export default function Home() {
             <h1 className="text-3xl font-bold text-foreground mb-2">轻出门广场</h1>
             <p className="text-muted">找个近处的搭子，做件小事，没压力。(Low-pressure meetups nearby)</p>
           </div>
-          {user && (
+          {session && session.user && (
             <Link href="/create-task" className="btn btn-primary">
               + 发布轻约 (Create Task)
             </Link>
@@ -223,12 +218,12 @@ export default function Home() {
                   </svg>
                   <span>{task.time}</span>
                 </div>
-                {user ? (
+                {session && session.user ? (
                   <button className="btn btn-primary text-sm">
                     我想去 (Join)
                   </button>
                 ) : (
-                  <Link href="/login" className="btn btn-primary text-sm">
+                  <Link href="/auth/login" className="btn btn-primary text-sm">
                     登录参与
                   </Link>
                 )}

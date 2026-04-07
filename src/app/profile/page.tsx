@@ -1,12 +1,24 @@
 import Link from 'next/link';
-import { getCurrentUser } from '@/app/lib/session';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/app/lib/auth/options';
 import { redirect } from 'next/navigation';
+import { db } from '@/db/db';
+import { users } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
 export default async function ProfilePage() {
-  const user = await getCurrentUser();
+  const session = await getServerSession(authOptions);
   
+  if (!session?.user) {
+    redirect('/auth/login');
+  }
+
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, parseInt(session.user.id)),
+  });
+
   if (!user) {
-    redirect('/login');
+    redirect('/auth/login');
   }
 
   // 模拟数据
@@ -61,7 +73,7 @@ export default async function ProfilePage() {
               </div>
               
               <div className="text-sm text-muted mb-4">
-                ID: qy_{user.id} · 加入于 {new Date(user.createdAt).toLocaleDateString('zh-CN')}
+                ID: qy_{user.id} · 加入于 {new Date(user.createdAt || new Date()).toLocaleDateString('zh-CN')}
               </div>
               
               {user.description && (
@@ -69,18 +81,17 @@ export default async function ProfilePage() {
               )}
               
               {/* 兴趣标签 */}
-              {user.interests && user.interests.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {user.interests.map((interest: any) => (
-                    <span 
-                      key={interest.id}
-                      className="tag tag-primary"
-                    >
-                      #{interest.name}
-                    </span>
-                  ))}
-                </div>
-              )}
+              <div className="flex flex-wrap gap-2">
+                <span className="tag tag-primary">
+                  #阅读
+                </span>
+                <span className="tag tag-primary">
+                  #旅行
+                </span>
+                <span className="tag tag-primary">
+                  #美食
+                </span>
+              </div>
             </div>
           </div>
         </div>

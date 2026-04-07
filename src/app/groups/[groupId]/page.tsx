@@ -2,15 +2,18 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
+import { useSession } from 'next-auth/react';
 
 export default function GroupDetailPage({
   params
 }: {
-  params: { groupId: string }
+  params: Promise<{ groupId: string }>
 }) {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const resolvedParams = use(params);
+  const sessionData = useSession();
+  const session = sessionData?.data;
   const [group, setGroup] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -20,15 +23,9 @@ export default function GroupDetailPage({
   useEffect(() => {
     async function fetchData() {
       try {
-        // 获取用户信息（如果已登录）
-        const authResponse = await fetch('/api/profile');
-        if (authResponse.ok) {
-          const userData = await authResponse.json();
-          setUser(userData);
-        }
 
         // 获取小组信息（无需登录）
-        const groupResponse = await fetch(`/api/groups/${params.groupId}`);
+        const groupResponse = await fetch(`/api/groups/${resolvedParams.groupId}`);
         if (!groupResponse.ok) {
           if (groupResponse.status === 404) {
             setError('小组不存在');
@@ -91,7 +88,7 @@ export default function GroupDetailPage({
     }
 
     fetchData();
-  }, [params.groupId, router]);
+  }, [resolvedParams.groupId, router]);
 
   const handleJoin = async () => {
     setActionLoading(true);
@@ -99,7 +96,7 @@ export default function GroupDetailPage({
     setSuccess('');
 
     try {
-      const response = await fetch(`/api/groups/${params.groupId}/join`, {
+      const response = await fetch(`/api/groups/${resolvedParams.groupId}/join`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -132,7 +129,7 @@ export default function GroupDetailPage({
     setSuccess('');
 
     try {
-      const response = await fetch(`/api/groups/${params.groupId}/leave`, {
+      const response = await fetch(`/api/groups/${resolvedParams.groupId}/leave`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -206,8 +203,8 @@ export default function GroupDetailPage({
           >
             返回列表
           </Link>
-          {user ? (
-            !group.is_member ? (
+          {session && session.user ? (
+            !group.isJoined ? (
               <button
                 onClick={handleJoin}
                 disabled={actionLoading}
@@ -226,7 +223,7 @@ export default function GroupDetailPage({
             )
           ) : (
             <Link 
-              href="/login" 
+              href="/auth/login" 
               className="btn btn-primary"
             >
               登录后加入小组
@@ -264,7 +261,7 @@ export default function GroupDetailPage({
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <h1 className="text-2xl font-semibold">{group.name}</h1>
-                {group.is_admin && (
+                {group.isAdmin && (
                   <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-medium">
                     管理员
                   </span>
@@ -275,13 +272,13 @@ export default function GroupDetailPage({
               )}
               <div className="flex items-center text-sm text-muted">
                 <img 
-                  src={group.creator_avatar} 
-                  alt={group.creator_name}
+                  src={group.creator.avatar} 
+                  alt={group.creator.nickname}
                   className="w-6 h-6 rounded-full mr-2"
                 />
-                <span>创建者：{group.creator_name}</span>
+                <span>创建者：{group.creator.nickname}</span>
                 <span className="mx-2">•</span>
-                <span>创建时间：{new Date(group.created_at).toLocaleDateString('zh-CN')}</span>
+                <span>创建时间：{new Date(group.createdAt).toLocaleDateString('zh-CN')}</span>
               </div>
             </div>
           </div>
@@ -291,12 +288,12 @@ export default function GroupDetailPage({
           <div className="card p-6 mb-6">
             <h2 className="text-lg font-semibold mb-4">兴趣标签</h2>
             <div className="flex flex-wrap gap-2">
-              {group.interests.map((interest: string, index: number) => (
+              {group.interests.map((interest: any, index: number) => (
                 <span 
                   key={index}
                   className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
                 >
-                  {interest}
+                  {interest.name}
                 </span>
               ))}
             </div>
@@ -304,7 +301,7 @@ export default function GroupDetailPage({
         )}
 
         <div className="card p-6 mb-6">
-          <h2 className="text-lg font-semibold mb-4">小组成员 ({group.member_count})</h2>
+          <h2 className="text-lg font-semibold mb-4">小组成员 ({group.memberCount})</h2>
           <div className="space-y-4">
             {group.members.map((member: any) => (
               <div key={member.id} className="flex items-center gap-4">
@@ -323,7 +320,7 @@ export default function GroupDetailPage({
                     )}
                   </div>
                   <span className="text-sm text-muted">
-                    加入时间：{new Date(member.joined_at).toLocaleDateString('zh-CN')}
+                    加入时间：{new Date(member.joinedAt).toLocaleDateString('zh-CN')}
                   </span>
                 </div>
               </div>
@@ -335,7 +332,7 @@ export default function GroupDetailPage({
         <div className="card p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold">圈子话题</h2>
-            {user && (
+            {session && session.user && (
               <button className="btn btn-primary text-sm">
                 发布话题
               </button>

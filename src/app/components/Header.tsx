@@ -1,26 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useSession, signOut } from 'next-auth/react';
 
 export default function Header() {
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const response = await fetch('/api/profile');
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch user:', error);
-      }
-    }
-
-    fetchUser();
-  }, []);
+  const sessionData = useSession();
+  const session = sessionData?.data;
 
   return (
     <header className="bg-white border-b border-border sticky top-0 z-50">
@@ -51,19 +36,27 @@ export default function Header() {
           </nav>
 
           {/* 登录/用户信息 */}
-          {user ? (
-            <Link href="/profile" className="flex items-center gap-2">
-              {user.avatar ? (
-                <img src={user.avatar} alt={user.nickname} className="avatar" />
+          {session && session.user ? (
+            <div className="flex items-center gap-2">
+              <Link href="/profile" className="flex items-center gap-2">
+                {session.user.image ? (
+                <img src={session.user.image} alt={session.user.name || ''} className="avatar" />
               ) : (
-                <div className="avatar bg-primary/10 flex items-center justify-center">
-                  <span className="text-primary font-medium">{user.nickname.charAt(0)}</span>
-                </div>
-              )}
-              <span className="text-sm font-medium">{user.nickname}</span>
-            </Link>
+                  <div className="avatar bg-primary/10 flex items-center justify-center">
+                    <span className="text-primary font-medium">{session.user.name?.charAt(0) || '?'}</span>
+                  </div>
+                )}
+                <span className="text-sm font-medium">{session.user.name}</span>
+              </Link>
+              <button 
+                onClick={() => signOut()}
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
+                退出
+              </button>
+            </div>
           ) : (
-            <Link href="/login" className="btn btn-primary">
+            <Link href="/auth/login" className="btn btn-primary">
               登录 (Login)
             </Link>
           )}

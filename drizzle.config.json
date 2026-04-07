@@ -1,0 +1,8 @@
+{
+  "schema": "./src/db/schema.ts",
+  "out": "./drizzle",
+  "dialect": "postgresql",
+  "dbCredentials": {
+    "url": "postgres://2ddcdc6e59021f58c48ad61cec4fa24665624e4b8deb72957aeafd0b2ba012e1:sk__TPpJ86eCzy6xrHuvryLs@db.prisma.io:5432/postgres?sslmode=require"
+  }
+}
